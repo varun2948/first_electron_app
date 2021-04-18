@@ -11,30 +11,48 @@ function createWindow(){
         }
     })
     win.loadFile('index.html')
-    appIcon = new Tray('overlay.png')
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Item1', type: 'radio' },
-    { label: 'Item2', type: 'radio' }
-  ])
-  contextMenu.items[1].checked = false
-  // Call this again for Linux because we modified the context menu
-  appIcon.setContextMenu(contextMenu)
-    // win.setOverlayIcon(path.join(__dirname, 'overlay.png'),'Description for overlay')
-}
 
+}
+function createTrayIcon (){
+    appIcon = new Tray('overlay.png')
+    const contextMenu = Menu.buildFromTemplate([
+      {
+          label: 'Show App',
+          click: () => {
+            createWindow();
+          }
+        },
+        {
+          label: 'Quit',
+          click: () => {
+            app.quit() // actually quit the app.
+          }
+        },
+    ])
+    // Call this again for Linux because we modified the context menu
+    appIcon.setContextMenu(contextMenu)
+}
 
 function showNotification(){
     const notification = {
         title :"Basic Notifcation",
         body: "Notification From The Main Process"
     }
-    new Notification(notification).show();
+    const myNotification =new Notification(notification)
+    myNotification.show();
+    const notificationInterval =setInterval(() => {
+        myNotification.show();
+    }, 3000);
     
+    myNotification.on('click', (event, arg)=>{
+        console.log('Notification clicked')
+        clearInterval(notificationInterval);
+    });
 }
 
 app.whenReady().then(()=>{
     createWindow();
-
+    createTrayIcon();
     app.on('activate',()=>{
         if(BrowserWindow.getAllWindows().length === 0){
             createWindow();
@@ -44,6 +62,6 @@ app.whenReady().then(()=>{
 
 app.on('window-all-closed', ()=>{
     if(process.platform !== 'darwin'){
-        app.quit();
+        // app.quit();
     }
 })
